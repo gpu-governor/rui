@@ -1,9 +1,9 @@
 CC = gcc
-FILE = main.c
+FILE = temp.c
 EXE = main
 RAY = -lraylib -lGL -lpthread -ldl -lrt 
-# STD = -lm -w #ignores warnings
-STD = -lm
+STD = -lm -w #ignores warnings
+
 
 all: $(EXE)
 

@@ -5,15 +5,14 @@ int main (){
 	rui mybutton = button_ui("click me",20,20);
 	// style_ui(&DarkTheme);
 	while(!WindowShouldClose()){
-		BeginDrawing();
-		ClearBackground(RAYWHITE);
-
 		update_button(&mybutton);
 		
 		if (mybutton.is_clicked) {
 		    // Button was clicked, handle the event here
 		    TraceLog(LOG_INFO, "Button was clicked!");
 		}
+		BeginDrawing();
+		ClearBackground(RAYWHITE);
 		
 		render_button(&mybutton);
 		EndDrawing();

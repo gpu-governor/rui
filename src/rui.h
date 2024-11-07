@@ -79,6 +79,7 @@ void quit_ui(){
 //========================================= BUTTONS ==================================
 rui button_ui(char * text, float x, float y) {
     rui new_button = {0};
+	new_button.text = text;
 	new_button.x = (float)x;
 	new_button.y = (float)y;
 	new_button.width = (float)70;
@@ -108,8 +109,13 @@ void render_button(rui *button) {
 
     // Use the Raylib Rectangle for drawing
     draw_rectangle_rounded(raylibRect, roundness, segments, draw_color);
+    // Measure text width to center it horizontally
+        int text_width = MeasureText(button->text, button->font_size);
+        int text_x = button->button_bounds.x + (button->button_bounds.width - text_width) / 2;
+        int text_y = button->button_bounds.y + (button->button_bounds.height - button->font_size) / 2;
     
-    draw_text(button->text, button->button_bounds.x + 10, button->button_bounds.y + 10, button->font_size, button->text_color);
+        draw_text(button->text, text_x, text_y, button->font_size, button->text_color);
+    // draw_text(button->text, button->button_bounds.x + 10, button->button_bounds.y + 10, button->font_size, button->text_color);
 }
 
 bool update_button(rui *button) {
