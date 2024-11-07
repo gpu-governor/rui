@@ -2,6 +2,7 @@ CC = gcc
 FILE = main.c
 EXE = main
 RAY = -lraylib -lGL -lpthread -ldl -lrt 
+# STD = -lm -w #ignores warnings
 STD = -lm
 
 all: $(EXE)

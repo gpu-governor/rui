@@ -57,9 +57,9 @@ int main(void) {
 
     while (!WindowShouldClose()) {
         // Update
-        bool buttonClicked = UpdateButton(&myButton);
+        UpdateButton(&myButton);
 
-        if (buttonClicked) {
+        if (myButton.isClicked) {
             // Button was clicked, handle the event here
             TraceLog(LOG_INFO, "Button was clicked!");
         }

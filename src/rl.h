@@ -19,6 +19,10 @@ void draw_rectangle(int x, int y, int w, int h, RUI_COLOR color) {
     Color raylibColor = toRaylibColor(color);  // Convert color
     DrawRectangle(x, y, w, h, raylibColor);  // Draw rectangle
 }
+void draw_rectangle_rounded(Rectangle rect,float roundness , int seg, RUI_COLOR color) {
+	Color raylibColor = toRaylibColor(color);
+    DrawRectangleRounded(rect, 0.2f, 10, raylibColor);
+}
 
 // Function to initialize the window
 void init(char * title, int w, int h) {
