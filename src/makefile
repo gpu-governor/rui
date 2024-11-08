@@ -1,5 +1,5 @@
 CC = gcc
-FILE = temp.c
+FILE = main.c
 EXE = main
 RAY = -lraylib -lGL -lpthread -ldl -lrt 
 STD = -lm -w #ignores warnings
