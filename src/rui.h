@@ -4,8 +4,9 @@
 #include"rl.h"
 #include <string.h>
 
-#define MAX_LINES 10
+#define MAX_LINES 10 // for text boxes
 #define MAX_LINE_LENGTH 128 // for text boxes
+#define MAX_TEXT_LENGTH 256 // for text entry
 
 
 
@@ -61,6 +62,12 @@ typedef struct {
     int current_pos;                 // Current position in the current line
     const char *placeholder;         // Placeholder text
     RUI_COLOR placeholder_color;         // Placeholder text color
+
+	// text entry
+	rui_rect textentry_bounds;                // Position and size of the text box
+    char textentry_text[MAX_TEXT_LENGTH];  // Text entered by the user
+    int cursor_position;         // Current position of the cursor within the text
+    int text_offset;             // Offset for scrolling text within bounds
 } rui;
 
 
@@ -244,5 +251,102 @@ void update_text_box(rui *text_box) {
         text_box->active = true;
     } else if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         text_box->active = false;
+    }
+}
+// func to get text
+char* get_text_box_content(rui *text_box) {
+    static char full_text[MAX_LINES * MAX_LINE_LENGTH] = { 0 }; // Static buffer to store concatenated text
+    memset(full_text, 0, sizeof(full_text)); // Clear previous content
+    
+    for (int i = 0; i < text_box->line_count; i++) {
+        strcat(full_text, text_box->textbox_text[i]);
+        if (i < text_box->line_count - 1) {
+            strcat(full_text, "\n"); // Add newline between lines
+        }
+    }
+    
+    return full_text;
+}
+
+//====================================== entry ======================================
+
+// Initialize a single-line text entry box
+rui text_entry_ui(float x, float y, float width, float height, int font_size, RUI_COLOR text_color, RUI_COLOR background_color) {
+    rui entry = {0};
+    entry.textentry_bounds = (rui_rect){ x,y,width,height };
+    entry.font_size = font_size;
+    entry.text_color = text_color;
+    entry.background_color = background_color;
+    entry.active = false;
+    entry.cursor_position = 0;
+    entry.text_offset = 0;
+    memset(entry.text, 0, MAX_TEXT_LENGTH); // Initialize text with empty characters
+    return entry;
+}
+
+// Draws the single-line text entry box and handles cursor blinking
+void render_text_entry(rui *entry) {
+		// Convert rui_rect to Raylib Rectangle
+	Rectangle raylibRect = toRaylibRectangle(entry->textentry_bounds);
+    draw_rectangle_from_rect(raylibRect, entry->background_color); // Draw background
+    draw_rectangle_lines(entry->textentry_bounds.x, entry->textentry_bounds.y, entry->textentry_bounds.width, entry->textentry_bounds.height, COLOR_DARKGRAY); // Draw border
+
+    // Calculate visible text starting from the text offset
+    char *visible_text = entry->text + entry->text_offset;
+    
+    draw_text(visible_text, entry->textentry_bounds.x + 5, entry->textentry_bounds.y + (entry->textentry_bounds.height - entry->font_size) / 2, entry->font_size, entry->text_color);
+
+    // Draw blinking cursor if active
+    if (entry->active) {
+        int cursor_x = entry->textentry_bounds.x + 5 + MeasureText(visible_text, entry->font_size);
+        if ((GetTime() * 2.0f) - (int)(GetTime() * 2.0f) < 0.5f) { // Blinking effect
+            draw_rectangle(cursor_x, entry->textentry_bounds.y + (entry->textentry_bounds.height - entry->font_size) / 2, 2, entry->font_size, entry->text_color);
+        }
+    }
+}
+
+// Updates the text entry box with user input and handles text scrolling when full
+void update_text_entry(rui *entry) {
+    if (entry->active) {
+        int key = GetCharPressed();
+
+        while (key > 0) {
+            // Check for printable characters and prevent overflow
+            if (key >= 32 && key <= 125 && entry->cursor_position < MAX_TEXT_LENGTH - 1) {
+                entry->text[entry->cursor_position] = (char)key;
+                entry->cursor_position++;
+                entry->text[entry->cursor_position] = '\0';
+
+                // Calculate the text width and adjust the offset to keep text visible
+                int text_width = MeasureText(entry->text + entry->text_offset, entry->font_size);
+                if (text_width > entry->textentry_bounds.width - 10) {
+                    entry->text_offset++;
+                }
+            }
+            key = GetCharPressed();
+        }
+
+        // Handle backspace
+        if (IsKeyPressed(KEY_BACKSPACE)) {
+            if (entry->cursor_position > 0) {
+                entry->cursor_position--;
+                entry->text[entry->cursor_position] = '\0';
+
+                // Adjust the text offset if there’s extra space after deleting
+                int text_width = MeasureText(entry->text + entry->text_offset, entry->font_size);
+                if (text_width < entry->textentry_bounds.width - 10 && entry->text_offset > 0) {
+                    entry->text_offset--;
+                }
+            }
+        }
+    }
+
+    // Activate or deactivate the text entry box on mouse click
+	Rectangle raylibRect = toRaylibRectangle(entry->textentry_bounds);// Convert rui_rect to Raylib Rectangle
+
+    if (CheckCollisionPointRec(GetMousePosition(),raylibRect) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        entry->active = true;
+    } else if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        entry->active = false;
     }
 }
