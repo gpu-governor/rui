@@ -2,16 +2,15 @@
 #include<stdbool.h>
 #include"raylib.h"
 #include"rl.h"
-#include <string.h>
+#include<string.h>
 
-#define MAX_LINES 10 // for text boxes
-#define MAX_LINE_LENGTH 128 // for text boxes
-#define MAX_TEXT_LENGTH 256 // for text entry
+#define MAX_LINES 10           // for text boxes
+#define MAX_LINE_LENGTH 128    // for text boxes
+#define MAX_TEXT_LENGTH 256    // for text entry
 
+//--------------------------- Style Struct ---------------------------
 
-
-
-typedef struct Style {
+typedef struct {
     // Colors for various UI elements
     RUI_COLOR background_color;
     RUI_COLOR text_color;
@@ -22,7 +21,9 @@ typedef struct Style {
     RUI_COLOR frame_color;
     // Text properties
     float fontSize;
-}RUI_STYLE;
+} rui_style;
+
+//--------------------------- Rectangle Struct ---------------------------
 
 typedef struct {
     float x;
@@ -36,67 +37,33 @@ Rectangle toRaylibRectangle(rui_rect rect) {
     Rectangle raylibRect = { rect.x, rect.y, rect.width, rect.height };
     return raylibRect;
 }
+//--------------------------- Button Struct ---------------------------
 
 typedef struct {
-    int x;
-    int y;
-    int width;
-    int height;
+    float x;
+    float y;
+    float width;
+    float height;
     char *text;
     int font_size;
     RUI_COLOR button_color;
     RUI_COLOR text_color;
-    rui_rect button_bounds;  // Updated to use rui_rect
+    rui_rect button_bounds;
     RUI_COLOR hover_color;
     RUI_COLOR clicked_color;
     bool is_hovered;
     bool is_clicked;
+} Button;
 
-    // text box
-    rui_rect textbox_bounds;                // Position and size of the text box
-    char textbox_text[MAX_LINES][MAX_LINE_LENGTH]; // 2D array to store text lines
-    int line_count;                  // Current line count in the box
-    RUI_COLOR background_color;          // Background color of the text box
-    bool active;                     // True when the text box is selected
-    int current_line;                // Current line being edited
-    int current_pos;                 // Current position in the current line
-    const char *placeholder;         // Placeholder text
-    RUI_COLOR placeholder_color;         // Placeholder text color
-
-	// text entry
-	rui_rect textentry_bounds;                // Position and size of the text box
-    char textentry_text[MAX_TEXT_LENGTH];  // Text entered by the user
-    int cursor_position;         // Current position of the cursor within the text
-    int text_offset;             // Offset for scrolling text within bounds
-} rui;
-
-
-//================================ GENERAL ====================================
-void init_ui(char * title, int w, int h){
-	init(title,w,h);
-}
-void quit_ui(){
-	quit();
-}
-// RUI_STYLE create_style(){
-// 	RUI_STYLE DarkTheme;
-// 	DarkTheme.background_color = COLOR_BLACK;
-// 	DarkTheme.background_color = BLACK;
-// 	
-// } 
-// void style_ui(RUI_STYLE *style){
-// 	
-// }
-//========================================= BUTTONS ==================================
-rui button_ui(char * text, float x, float y) {
-    rui new_button = {0};
-	new_button.text = text;
-	new_button.x = (float)x;
-	new_button.y = (float)y;
-	new_button.width = (float)70;
-	new_button.height = (float)30;
-	new_button.font_size=10;
-    new_button.button_bounds = (rui_rect){ new_button.x, new_button.y, new_button.width, new_button.height };
+Button create_button(char *text, float x, float y) {
+    Button new_button = {0};
+    new_button.text = text;
+    new_button.x = x;
+    new_button.y = y;
+    new_button.width = 70;
+    new_button.height = 30;
+    new_button.font_size = 10;
+    new_button.button_bounds = (rui_rect){ x, y, 70, 30 };
     new_button.button_color = COLOR_BLUE;
     new_button.hover_color = COLOR_SKYBLUE;
     new_button.clicked_color = COLOR_DARKBLUE;
@@ -106,7 +73,7 @@ rui button_ui(char * text, float x, float y) {
     return new_button;
 }
 
-void render_button(rui *button) {
+void render_button(Button *button) {
     RUI_COLOR draw_color = button->button_color;  // Updated to match `button_color`
 
     if (button->is_hovered) draw_color = button->hover_color;
@@ -128,7 +95,7 @@ void render_button(rui *button) {
         draw_text(button->text, text_x, text_y, button->font_size, button->text_color);
 }
 
-bool update_button(rui *button) {
+bool update_button(Button *button) {
     Vector2 mousePoint = GetMousePosition();
 
     // Convert rui_rect to Raylib Rectangle
@@ -148,10 +115,25 @@ bool update_button(rui *button) {
     return false; // Button was not clicked
 }
 
-// ================================ TEXT BOX ==================================
+//--------------------------- Text Box Struct ---------------------------
+
+typedef struct {
+    rui_rect textbox_bounds;
+    char textbox_text[MAX_LINES][MAX_LINE_LENGTH];
+    int line_count;
+    RUI_COLOR background_color;
+    bool active;
+    int current_line;
+    int current_pos;
+    const char *placeholder;
+    RUI_COLOR placeholder_color;
+    int font_size;
+    RUI_COLOR text_color;
+} TextBox;
+
 // Initialize a multiline text box with placeholder text
-rui text_box_ui(float x, float y, float width, float height, int font_size, RUI_COLOR text_color, RUI_COLOR background_color, const char *placeholder) {
-    rui text_box = {0};
+TextBox create_text_box(float x, float y, float width, float height, int font_size, RUI_COLOR text_color, RUI_COLOR background_color, const char *placeholder) {
+    TextBox text_box = {0};
     text_box.textbox_bounds = (rui_rect){ x,y,width,height };
     text_box.font_size = font_size;
     text_box.text_color = text_color;
@@ -167,7 +149,7 @@ rui text_box_ui(float x, float y, float width, float height, int font_size, RUI_
 }
 
 // Draws the multiline text box and handles cursor blinking
-void render_text_box(rui *text_box) {
+void render_text_box(TextBox *text_box) {
 	// Convert rui_rect to Raylib Rectangle
 	Rectangle raylibRect = toRaylibRectangle(text_box->textbox_bounds);
     draw_rectangle_from_rect(raylibRect, text_box->background_color);// Draw background
@@ -198,7 +180,7 @@ void render_text_box(rui *text_box) {
 }
 
 // Updates the multiline text box with user input and handles automatic line wrapping
-void update_text_box(rui *text_box) {
+void update_text_box(TextBox *text_box) {
     if (text_box->active) {
         int key = GetCharPressed();
 
@@ -254,7 +236,7 @@ void update_text_box(rui *text_box) {
     }
 }
 // func to get text
-char* get_text_box_content(rui *text_box) {
+char* get_text_box_content(TextBox *text_box) {
     static char full_text[MAX_LINES * MAX_LINE_LENGTH] = { 0 }; // Static buffer to store concatenated text
     memset(full_text, 0, sizeof(full_text)); // Clear previous content
     
@@ -268,11 +250,22 @@ char* get_text_box_content(rui *text_box) {
     return full_text;
 }
 
-//====================================== entry ======================================
+//--------------------------- Text Entry Struct ---------------------------
+
+typedef struct {
+    rui_rect textentry_bounds;
+    char text[MAX_TEXT_LENGTH];
+    int cursor_position;
+    int text_offset;
+    bool active;
+    int font_size;
+    RUI_COLOR text_color;
+    RUI_COLOR background_color;
+} TextEntry;
 
 // Initialize a single-line text entry box
-rui text_entry_ui(float x, float y, float width, float height, int font_size, RUI_COLOR text_color, RUI_COLOR background_color) {
-    rui entry = {0};
+TextEntry create_text_entry(float x, float y, float width, float height, int font_size, RUI_COLOR text_color, RUI_COLOR background_color) {
+	TextEntry entry = {0};
     entry.textentry_bounds = (rui_rect){ x,y,width,height };
     entry.font_size = font_size;
     entry.text_color = text_color;
@@ -285,7 +278,7 @@ rui text_entry_ui(float x, float y, float width, float height, int font_size, RU
 }
 
 // Draws the single-line text entry box and handles cursor blinking
-void render_text_entry(rui *entry) {
+void render_text_entry(TextEntry *entry) {
 		// Convert rui_rect to Raylib Rectangle
 	Rectangle raylibRect = toRaylibRectangle(entry->textentry_bounds);
     draw_rectangle_from_rect(raylibRect, entry->background_color); // Draw background
@@ -306,7 +299,7 @@ void render_text_entry(rui *entry) {
 }
 
 // Updates the text entry box with user input and handles text scrolling when full
-void update_text_entry(rui *entry) {
+void update_text_entry(TextEntry *entry) {
     if (entry->active) {
         int key = GetCharPressed();
 
@@ -349,4 +342,14 @@ void update_text_entry(rui *entry) {
     } else if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         entry->active = false;
     }
+}
+
+//--------------------------- General UI Functions ---------------------------
+
+void init_ui(char *title, int w, int h) {
+    init(title, w, h);
+}
+
+void quit_ui() {
+    quit();
 }
