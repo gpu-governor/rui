@@ -369,11 +369,11 @@ RadioButton create_radio_button(int x, int y, int width, int height, const char 
 
 // Function to render a single radio button
 void render_radio_button(RadioButton *radioButton) {
-    DrawCircle(radioButton->x, radioButton->y, radioButton->width / 2, DARKGRAY);
+    draw_circle(radioButton->x, radioButton->y, radioButton->width / 2, COLOR_DARKGRAY);
     if (radioButton->isSelected) {
-        DrawCircle(radioButton->x, radioButton->y, radioButton->width / 4, BLUE);
+        draw_circle(radioButton->x, radioButton->y, radioButton->width / 4, COLOR_BLUE);
     }
-    DrawText(radioButton->label, radioButton->x + radioButton->width, radioButton->y - radioButton->height / 2, 10, BLACK);
+    draw_text(radioButton->label, radioButton->x + radioButton->width, radioButton->y - radioButton->height / 2, 10, COLOR_BLACK);
 }
 
 // Function to update the state of a single radio button

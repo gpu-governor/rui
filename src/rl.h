@@ -29,7 +29,10 @@ Color toRaylibColor(RUI_COLOR color) {
     return raylibColor;
 }
 
-
+void draw_circle(int x, int y, float r, RUI_COLOR color){
+	Color raylibColor = toRaylibColor(color);
+	DrawCircle(x, y, r,raylibColor );
+}
 void draw_rectangle_from_rect(Rectangle rect, RUI_COLOR color){
 	Color raylibColor = toRaylibColor(color);
     DrawRectangleRec(rect, raylibColor); 
