@@ -1,33 +1,33 @@
-#include"rui.h"
+#include "rui.h"
 
-int main (){
-	init_ui("title",800,600);
-	MenuWindow menu = create_menu_window(100,100, 400, 300, "Menu Window",WINDOW_MODE_RESIZABLE, true, true, true, 800);
+int main() {
+    init_ui("title", 800, 600);
 
-	// buttons
-	Button mybutton = create_button("click me",20,20);
+    MenuWindow menu = create_menu_window(100, 100, 400, 300, "Menu Window", WINDOW_MODE_RESIZABLE, true, true, true, 800);
 
-	// style_ui(&DarkTheme);
-	while(!WindowShouldClose()){
-	// all updates
+    // Button
+    Button mybutton = create_button("Click Me", 20, 20);
 
+    while (!WindowShouldClose()) {
+        // Updates
         update_menu_window(&menu);
-		update_button_postition(&mybutton,&menu);
+        update_button_position(&mybutton, &menu);
 
-		if (mybutton.is_clicked) {
-		    // Button was clicked, handle the event here
-		    TraceLog(LOG_INFO, "Button was clicked!");
-		}
-		BeginDrawing();
-		ClearBackground(RAYWHITE);
-		render_button(&mybutton);
+        if (update_button(&mybutton)) {
+            // Button was clicked, handle the event
+            TraceLog(LOG_INFO, "Button was clicked!");
+        }
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+        // Render Menu and Button
         render_menu_window(&menu);
+        render_button(&mybutton);
 
+        EndDrawing();
+    }
 
-		
-		EndDrawing();
-	}
-	quit_ui();
-	return 0;
+    quit_ui();
+    return 0;
 }
-

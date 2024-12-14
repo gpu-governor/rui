@@ -307,12 +307,12 @@ bool update_button(Button *button) {
     return false; // Button was not clicked
 }
 
-void update_button_postition(Button *button, MenuWindow* menu){
-		// modify button rect to fit container
-		button->button_bounds.x += menu->x;
-		button->button_bounds.y += menu->y;
-
+void update_button_position(Button *button, MenuWindow *menu) {
+    // Adjust button position relative to the menu
+    button->button_bounds.x = menu->bounds.x + button->x;
+    button->button_bounds.y = menu->bounds.y + button->y;
 }
+
 //--------------------------- Text Box Struct ---------------------------
 
 typedef struct {
