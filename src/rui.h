@@ -38,7 +38,6 @@ Rectangle toRaylibRectangle(rui_rect rect) {
     return raylibRect;
 }
 //--------------------------- window ---------------------------------
-#include "raylib.h"
 
 // Enum to define different modes for the menu window
 typedef enum {
@@ -49,6 +48,7 @@ typedef enum {
 
 // Struct to represent a menu window with all its properties
 typedef struct {
+	int x, y;
     Rectangle bounds;        // Defines the window's position and size
     bool isDragging;         // Indicates if the window is being dragged
     bool isResizing;         // Indicates if the window is being resized
@@ -71,7 +71,9 @@ MenuWindow create_menu_window(
     bool showTitle, bool movable, bool scrollEnabled, float contentHeight
 ) {
     MenuWindow window = {0};
-    window.bounds = (Rectangle){ x, y, width, height }; // Set position and size
+    window.x = x;
+	window.y = y;
+    window.bounds = (Rectangle){ window.x,window.y, width, height }; // Set position and size
     window.isDragging = false;
     window.isResizing = false;
     window.dragOffset = (Vector2){ 0, 0 };
@@ -206,14 +208,14 @@ void render_menu_window(MenuWindow *window) {
     BeginScissorMode(clipArea.x, clipArea.y, clipArea.width, clipArea.height);
 
     // Render content with scrolling offset
-    float yOffset = 30 - window->scrollOffset;
-    for (int i = 0; i < 10; i++) {
-        float rectY = window->bounds.y + yOffset + i * 50;
-        if (rectY + 40 >= clipArea.y && rectY <= clipArea.y + clipArea.height) {
-            DrawRectangle(window->bounds.x + 10, rectY, window->bounds.width - 30, 40, i % 2 == 0 ? BLUE : GREEN);
-            DrawText(TextFormat("Item %d", i + 1), window->bounds.x + 15, rectY + 10, 20, RAYWHITE);
-        }
-    }
+    // float yOffset = 30 - window->scrollOffset;
+    // for (int i = 0; i < 10; i++) {
+    //     float rectY = window->bounds.y + yOffset + i * 50;
+    //     if (rectY + 40 >= clipArea.y && rectY <= clipArea.y + clipArea.height) {
+    //         DrawRectangle(window->bounds.x + 10, rectY, window->bounds.width - 30, 40, i % 2 == 0 ? BLUE : GREEN);
+    //         DrawText(TextFormat("Item %d", i + 1), window->bounds.x + 15, rectY + 10, 20, RAYWHITE);
+    //     }
+    // }
 
     EndScissorMode();
 }
@@ -241,6 +243,7 @@ typedef struct {
     RUI_COLOR clicked_color;
     bool is_hovered;
     bool is_clicked;
+
 } Button;
 
 Button create_button(char *text, float x, float y) {
@@ -269,6 +272,7 @@ void render_button(Button *button) {
 
     float roundness = 0.2f;
     int segments = 10;
+
 
     // Convert rui_rect to Raylib Rectangle
     Rectangle raylibRect = toRaylibRectangle(button->button_bounds);
@@ -303,6 +307,12 @@ bool update_button(Button *button) {
     return false; // Button was not clicked
 }
 
+void update_button_postition(Button *button, MenuWindow* menu){
+		// modify button rect to fit container
+		button->button_bounds.x += menu->x;
+		button->button_bounds.y += menu->y;
+
+}
 //--------------------------- Text Box Struct ---------------------------
 
 typedef struct {
