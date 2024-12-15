@@ -327,12 +327,15 @@ typedef struct {
     RUI_COLOR placeholder_color;
     int font_size;
     RUI_COLOR text_color;
+    float x,y;
 } TextBox;
 
 // Initialize a multiline text box with placeholder text
 TextBox create_text_box(float x, float y, float width, float height, int font_size, RUI_COLOR text_color, RUI_COLOR background_color, const char *placeholder) {
     TextBox text_box = {0};
-    text_box.textbox_bounds = (rui_rect){ x,y,width,height };
+    text_box.x = x;
+    text_box.y = y;
+    text_box.textbox_bounds = (rui_rect){ text_box.x,text_box.y,width,height };
     text_box.font_size = font_size;
     text_box.text_color = text_color;
     text_box.background_color = background_color;
@@ -448,6 +451,11 @@ char* get_text_box_content(TextBox *text_box) {
     return full_text;
 }
 
+void update_textbox_position(TextBox *text_box, MenuWindow *menu) {
+    // Adjust button position relative to the menu
+    text_box->textbox_bounds.x = menu->bounds.x + text_box->x;
+    text_box->textbox_bounds.y = menu->bounds.y + text_box->y;
+}
 //--------------------------- Text Entry Struct ---------------------------
 
 typedef struct {
@@ -459,11 +467,14 @@ typedef struct {
     int font_size;
     RUI_COLOR text_color;
     RUI_COLOR background_color;
+    float x, y;
 } TextEntry;
 
 // Initialize a single-line text entry box
 TextEntry create_text_entry(float x, float y, float width, float height, int font_size, RUI_COLOR text_color, RUI_COLOR background_color) {
 	TextEntry entry = {0};
+	entry.x = x;
+	entry.y = y;
     entry.textentry_bounds = (rui_rect){ x,y,width,height };
     entry.font_size = font_size;
     entry.text_color = text_color;
@@ -540,6 +551,11 @@ void update_text_entry(TextEntry *entry) {
     } else if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         entry->active = false;
     }
+}
+void update_entry_position(TextEntry *entry, MenuWindow *menu) {
+    // Adjust button position relative to the menu
+    entry->textentry_bounds.x = menu->bounds.x + entry->x;
+    entry->textentry_bounds.y = menu->bounds.y + entry->y;
 }
 //---------------------------- radio --------------------------------
 // RadioButton structure definition
@@ -621,6 +637,12 @@ void update_radio_button_group(RadioButtonGroup *group) {
 // Function to get the selected option index in a group
 int get_selected_option(RadioButtonGroup *group) {
     return group->selectedOption;
+}
+
+void update_radio_position(RadioButton *radioButton, MenuWindow *menu) {
+    // Adjust button position relative to the menu
+    entry->textentry_bounds.x = menu->bounds.x + entry->x;
+    entry->textentry_bounds.y = menu->bounds.y + entry->y;
 }
 //--------------------------- General UI Functions ---------------------------
 
